@@ -13,7 +13,7 @@ func ListFiles(amount string, cid string, name string, status string, offset str
 		return ListResponse{}, err
 	}
 	host := GetHost()
-	url := fmt.Sprintf("https://%s/data/pinList?includesCount=false&pageLimit=%s&status=%s", host, amount, status)
+	url := fmt.Sprintf("https://%s/files", host, amount, status)
 
 	if cid != "null" {
 		url += "&hashContains=" + cid
@@ -49,7 +49,7 @@ func ListFiles(amount string, cid string, name string, status string, offset str
 	if err != nil {
 		return ListResponse{}, err
 	}
-	formattedJSON, err := json.MarshalIndent(response.Rows, "", "    ")
+	formattedJSON, err := json.MarshalIndent(response.Data, "", "    ")
 	if err != nil {
 		return ListResponse{}, errors.New("failed to format JSON")
 	}

@@ -5,16 +5,17 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/schollz/progressbar/v3"
 	"io"
 	"log"
 	"mime/multipart"
 	"net/http"
 	"os"
 	"path/filepath"
+
+	"github.com/schollz/progressbar/v3"
 )
 
-func Upload(filePath string, version int, name string, cidOnly bool) (UploadResponse, error) {
+func Upload(filePath string, groupId string, name string, cidOnly bool) (UploadResponse, error) {
 	jwt, err := findToken()
 	if err != nil {
 		return UploadResponse{}, err
@@ -32,7 +33,7 @@ func Upload(filePath string, version int, name string, cidOnly bool) (UploadResp
 	}
 
 	body := &bytes.Buffer{}
-	contentType, err := createMultipartRequest(filePath, files, body, stats, version, name)
+	contentType, err := createMultipartRequest(filePath, files, body, stats, groupId, name)
 	if err != nil {
 		return UploadResponse{}, err
 	}
@@ -42,8 +43,7 @@ func Upload(filePath string, version int, name string, cidOnly bool) (UploadResp
 
 	progressBody := newProgressReader(body, totalSize)
 
-	host := GetHost()
-	url := fmt.Sprintf("https://%s/pinning/pinFileToIPFS", host)
+	url := fmt.Sprintf("https://uploads.pinata.cloud/v3/files")
 	req, err := http.NewRequest("POST", url, progressBody)
 	if err != nil {
 		return UploadResponse{}, errors.Join(err, errors.New("failed to create the request"))
@@ -77,14 +77,18 @@ func Upload(filePath string, version int, name string, cidOnly bool) (UploadResp
 		return UploadResponse{}, err
 	}
 	if cidOnly {
-		fmt.Println(response.IpfsHash)
+		fmt.Println(response.Cid)
 	} else {
 		fmt.Println("Success!")
-		fmt.Println("CID:", response.IpfsHash)
-		fmt.Println("Size:", formatSize(response.PinSize))
-		fmt.Println("Date:", response.Timestamp)
-		if response.IsDuplicate {
-			fmt.Println("Already Pinned: true")
+		fmt.Println("CID:", response.Cid)
+		fmt.Println("Name:", response.Name)
+		fmt.Println("Size:", formatSize(response.Size))
+		fmt.Println("Number of Files:", response.NumberOfFiles)
+		fmt.Println("MIME Type:", response.MimeType)
+		fmt.Println("User ID:", response.UserId)
+		fmt.Println("Indexed At:", response.IndexedAt)
+		if response.GroupId != "" {
+			fmt.Println("Group ID:", response.GroupId)
 		}
 	}
 	return response, nil
@@ -169,7 +173,7 @@ func formatSize(bytes int) string {
 	return formattedSize
 }
 
-func createMultipartRequest(filePath string, files []string, body io.Writer, stats os.FileInfo, version int, name string) (string, error) {
+func createMultipartRequest(filePath string, files []string, body io.Writer, stats os.FileInfo, groupId string, name string) (string, error) {
 	contentType := ""
 	writer := multipart.NewWriter(body)
 
@@ -202,33 +206,22 @@ func createMultipartRequest(filePath string, files []string, body io.Writer, sta
 		}
 	}
 
-	pinataOptions := Options{
-		CidVersion: version,
+	if groupId != "" {
+		err := writer.WriteField("group_id", groupId)
+		if err != nil {
+			return contentType, err
+		}
 	}
 
-	optionsBytes, err := json.Marshal(pinataOptions)
+	nameToUse := stats.Name()
+	if name != "nil" {
+		nameToUse = name
+	}
+	err := writer.WriteField("name", nameToUse)
 	if err != nil {
 		return contentType, err
 	}
-	err = writer.WriteField("pinataOptions", string(optionsBytes))
 
-	if err != nil {
-		return contentType, err
-	}
-
-	pinataMetadata := Metadata{
-		Name: func() string {
-			if name != "nil" {
-				return name
-			}
-			return stats.Name()
-		}(),
-	}
-	metadataBytes, err := json.Marshal(pinataMetadata)
-	if err != nil {
-		return contentType, err
-	}
-	_ = writer.WriteField("pinataMetadata", string(metadataBytes))
 	err = writer.Close()
 	if err != nil {
 		return contentType, err

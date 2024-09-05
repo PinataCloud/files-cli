@@ -2,60 +2,50 @@ package main
 
 import (
 	"errors"
-	"github.com/urfave/cli/v2"
 	"log"
 	"os"
+
+	"github.com/urfave/cli/v2"
 )
 
 type UploadResponse struct {
-	IpfsHash    string `json:"IpfsHash"`
-	PinSize     int    `json:"PinSize"`
-	Timestamp   string `json:"Timestamp"`
-	IsDuplicate bool   `json:"isDuplicate"`
-}
-
-type PinByCIDResponse struct {
-	Id     string `json:"id"`
-	CID    string `json:"ipfsHash"`
-	Status string `json:"status"`
-	Name   string `json:"name"`
+	Id            string `json:"id"`
+	Name          string `json:"name"`
+	Cid           string `json:"cid"`
+	Size          int    `json:"size"`
+	NumberOfFiles int    `json:"number_of_files"`
+	MimeType      string `json:"mime_type"`
+	UserId        string `json:"user_id"`
+	IndexedAt     string `json:"indexed_at"`
+	GroupId       string `json:"group_id,omitempty"`
 }
 
 type Options struct {
-	CidVersion int `json:"cidVersion"`
+	GroupId string `json:"group_id"`
 }
 
 type Metadata struct {
-	Name      string                 `json:"name"`
-	KeyValues map[string]interface{} `json:"keyvalues"`
+	Name string `json:"name"`
 }
 
-type Pin struct {
-	Id            string   `json:"id"`
-	IPFSPinHash   string   `json:"ipfs_pin_hash"`
-	Size          int      `json:"size"`
-	UserId        string   `json:"user_id"`
-	DatePinned    string   `json:"date_pinned"`
-	DateUnpinned  *string  `json:"date_unpinned"`
-	Metadata      Metadata `json:"metadata"`
-	MimeType      string   `json:"mime_type"`
-	NumberOfFiles int      `json:"number_of_files"`
+type File struct {
+	Id            string  `json:"id"`
+	Name          string  `json:"name"`
+	Cid           string  `json:"cid"`
+	Size          int     `json:"size"`
+	NumberOfFiles int     `json:"number_of_files"`
+	MimeType      string  `json:"mime_type"`
+	GroupId       *string `json:"group_id,omitempty"`
+	CreatedAt     string  `json:"created_at"`
+}
+
+type ListFilesData struct {
+	Files         []File `json:"files"`
+	NextPageToken string `json:"next_page_token"`
 }
 
 type ListResponse struct {
-	Rows []Pin `json:"rows"`
-}
-
-type Request struct {
-	Id        string `json:"id"`
-	CID       string `json:"ipfs_pin_hash"`
-	StartDate string `json:"date_queued"`
-	Name      string `json:"name"`
-	Status    string `json:"status"`
-}
-
-type RequestsResponse struct {
-	Rows []Request `json:"rows"`
+	Data ListFilesData `json:"data"`
 }
 
 func main() {
@@ -95,75 +85,20 @@ func main() {
 						Value:   "nil",
 						Usage:   "Add a name for the file you are uploading. By default it will use the filename on your system.",
 					},
-          &cli.BoolFlag{
-            Name: "cid-only",
-            Usage: "Use if you only want the CID returned after an upload",
-          },
+					&cli.BoolFlag{
+						Name:  "cid-only",
+						Usage: "Use if you only want the CID returned after an upload",
+					},
 				},
 				Action: func(ctx *cli.Context) error {
 					filePath := ctx.Args().First()
-					version := ctx.Int("version")
+					groupId := ctx.String("groupId")
 					name := ctx.String("name")
-          cidOnly := ctx.Bool("cid-only")
+					cidOnly := ctx.Bool("cid-only")
 					if filePath == "" {
 						return errors.New("no file path provided")
 					}
-					_, err := Upload(filePath, version, name, cidOnly)
-					return err
-				},
-			},
-			{
-				Name:      "pin",
-				Aliases:   []string{"p"},
-				Usage:     "Pin an existing CID on IPFS to Pinata",
-				ArgsUsage: "[CID of file on IPFS]",
-				Flags: []cli.Flag{
-					&cli.StringFlag{
-						Name:    "name",
-						Aliases: []string{"n"},
-						Value:   "null",
-						Usage:   "Add a name for the file you are trying to pin.",
-					},
-				},
-				Action: func(ctx *cli.Context) error {
-					cid := ctx.Args().First()
-					name := ctx.String("name")
-					if cid == "" {
-						return errors.New("no cid provided")
-					}
-					_, err := PinByCID(cid, name)
-					return err
-				},
-			},
-			{
-				Name:    "requests",
-				Aliases: []string{"r"},
-				Usage:   "List pin by CID requests.",
-				Flags: []cli.Flag{
-					&cli.StringFlag{
-						Name:    "cid",
-						Aliases: []string{"c"},
-						Value:   "null",
-						Usage:   "Search pin by CID requests by CID",
-					},
-					&cli.StringFlag{
-						Name:    "status",
-						Aliases: []string{"s"},
-						Value:   "null",
-						Usage:   "Search by status for pin by CID requests. See https://docs.pinata.cloud/reference/get_pinning-pinjobs for more info.",
-					},
-					&cli.StringFlag{
-						Name:    "pageOffset",
-						Aliases: []string{"p"},
-						Value:   "null",
-						Usage:   "Allows you to paginate through requests by number of requests.",
-					},
-				},
-				Action: func(ctx *cli.Context) error {
-					cid := ctx.String("cid")
-					status := ctx.String("status")
-					offset := ctx.String("pageOffset")
-					_, err := Requests(cid, status, offset)
+					_, err := Upload(filePath, groupId, name, cidOnly)
 					return err
 				},
 			},
