@@ -42,3 +42,15 @@ type ListFilesData struct {
 type ListResponse struct {
 	Data ListFilesData `json:"data"`
 }
+
+type GroupResponseItem struct {
+	Id        string `json:"id"`
+	IsPublic  bool   `json:"is_public"`
+	Name      string `json:"name"`
+	CreatedAt string `json:"created_at"`
+}
+
+type GroupListResponse struct {
+	Groups        []GroupResponseItem `json:"groups"`
+	NextPageToken string              `json:"next_page_token"`
+}
