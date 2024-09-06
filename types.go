@@ -51,6 +51,8 @@ type GroupResponseItem struct {
 }
 
 type GroupListResponse struct {
-	Groups        []GroupResponseItem `json:"groups"`
-	NextPageToken string              `json:"next_page_token"`
+	Data struct {
+		Groups        []GroupResponseItem `json:"groups"`
+		NextPageToken string              `json:"next_page_token"`
+	} `json:"data"`
 }

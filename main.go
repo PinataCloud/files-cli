@@ -63,11 +63,42 @@ func main() {
 				},
 			},
 			{
+				Name:    "groups",
+				Aliases: []string{"g"},
+				Usage:   "Interact with file groups",
+				Subcommands: []*cli.Command{
+					{
+						Name:    "list",
+						Aliases: []string{"l"},
+						Usage:   "List groups on your account",
+						Flags: []cli.Flag{
+							&cli.BoolFlag{
+								Name:    "public",
+								Aliases: []string{"p"},
+								Value:   true,
+								Usage:   "List only public groups",
+							},
+							&cli.StringFlag{
+								Name:    "amount",
+								Aliases: []string{"a"},
+								Value:   "10",
+								Usage:   "The number of groups you would like to return",
+							},
+						},
+						Action: func(ctx *cli.Context) error {
+							public := ctx.Bool("public")
+							amount := ctx.String("amount")
+							_, err := ListGroups(amount, public)
+							return err
+						},
+					},
+				},
+			},
+			{
 				Name:    "files",
 				Aliases: []string{"f"},
 				Usage:   "Interact with your files on Pinata",
 				Subcommands: []*cli.Command{
-
 					{
 						Name:      "delete",
 						Aliases:   []string{"d"},
