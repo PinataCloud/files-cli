@@ -6,13 +6,12 @@ import (
 	"net/http"
 )
 
-func Delete(cid string) error {
+func Delete(id string) error {
 	jwt, err := findToken()
 	if err != nil {
 		return err
 	}
-	host := GetHost()
-	url := fmt.Sprintf("https://%s/pinning/unpin/%s", host, cid)
+	url := fmt.Sprintf("https://api.pinata.cloud/v3/files/%s", id)
 
 	req, err := http.NewRequest("DELETE", url, nil)
 	if err != nil {

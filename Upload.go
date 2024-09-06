@@ -77,18 +77,21 @@ func Upload(filePath string, groupId string, name string, cidOnly bool) (UploadR
 		return UploadResponse{}, err
 	}
 	if cidOnly {
-		fmt.Println(response.Cid)
+		fmt.Println(response.Data.Cid)
 	} else {
 		fmt.Println("Success!")
-		fmt.Println("CID:", response.Cid)
-		fmt.Println("Name:", response.Name)
-		fmt.Println("Size:", formatSize(response.Size))
-		fmt.Println("Number of Files:", response.NumberOfFiles)
-		fmt.Println("MIME Type:", response.MimeType)
-		fmt.Println("User ID:", response.UserId)
-		fmt.Println("Indexed At:", response.IndexedAt)
-		if response.GroupId != "" {
-			fmt.Println("Group ID:", response.GroupId)
+		fmt.Println("CID:", response.Data.Cid)
+		fmt.Println("Name:", response.Data.Name)
+		fmt.Println("Size:", formatSize(response.Data.Size))
+		fmt.Println("Number of Files:", response.Data.NumberOfFiles)
+		fmt.Println("Mime Type:", response.Data.MimeType)
+		fmt.Println("User ID:", response.Data.UserId)
+		fmt.Println("Created At:", response.Data.CreatedAt)
+		if response.Data.IsDuplicate {
+			fmt.Println("Duplicate:", response.Data.IsDuplicate)
+		}
+		if response.Data.GroupId != "" {
+			fmt.Println("Group ID:", response.Data.GroupId)
 		}
 	}
 	return response, nil

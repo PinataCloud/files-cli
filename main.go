@@ -8,46 +8,6 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-type UploadResponse struct {
-	Id            string `json:"id"`
-	Name          string `json:"name"`
-	Cid           string `json:"cid"`
-	Size          int    `json:"size"`
-	NumberOfFiles int    `json:"number_of_files"`
-	MimeType      string `json:"mime_type"`
-	UserId        string `json:"user_id"`
-	IndexedAt     string `json:"indexed_at"`
-	GroupId       string `json:"group_id,omitempty"`
-}
-
-type Options struct {
-	GroupId string `json:"group_id"`
-}
-
-type Metadata struct {
-	Name string `json:"name"`
-}
-
-type File struct {
-	Id            string  `json:"id"`
-	Name          string  `json:"name"`
-	Cid           string  `json:"cid"`
-	Size          int     `json:"size"`
-	NumberOfFiles int     `json:"number_of_files"`
-	MimeType      string  `json:"mime_type"`
-	GroupId       *string `json:"group_id,omitempty"`
-	CreatedAt     string  `json:"created_at"`
-}
-
-type ListFilesData struct {
-	Files         []File `json:"files"`
-	NextPageToken string `json:"next_page_token"`
-}
-
-type ListResponse struct {
-	Data ListFilesData `json:"data"`
-}
-
 func main() {
 	app := &cli.App{
 		Name:  "pinata",
@@ -103,63 +63,71 @@ func main() {
 				},
 			},
 			{
-				Name:      "delete",
-				Aliases:   []string{"d"},
-				Usage:     "Delete a file by CID",
-				ArgsUsage: "[CID of file]",
-				Action: func(ctx *cli.Context) error {
-					cid := ctx.Args().First()
-					if cid == "" {
-						return errors.New("no CID provided")
-					}
-					err := Delete(cid)
-					return err
-				},
-			},
-			{
-				Name:    "list",
-				Aliases: []string{"l"},
-				Usage:   "List most recent files",
-				Flags: []cli.Flag{
-					&cli.StringFlag{
-						Name:    "cid",
-						Aliases: []string{"c"},
-						Value:   "null",
-						Usage:   "Search files by CID",
+				Name:    "files",
+				Aliases: []string{"f"},
+				Usage:   "Interact with your files on Pinata",
+				Subcommands: []*cli.Command{
+
+					{
+						Name:      "delete",
+						Aliases:   []string{"d"},
+						Usage:     "Delete a file by ID",
+						ArgsUsage: "[ID of file]",
+						Action: func(ctx *cli.Context) error {
+							fileId := ctx.Args().First()
+							if fileId == "" {
+								return errors.New("no CID provided")
+							}
+							err := Delete(fileId)
+							return err
+						},
 					},
-					&cli.StringFlag{
-						Name:    "amount",
-						Aliases: []string{"a"},
-						Value:   "10",
-						Usage:   "The number of files you would like to return, default 10 max 1000",
+					{
+						Name:    "list",
+						Aliases: []string{"l"},
+						Usage:   "List most recent files",
+						Flags: []cli.Flag{
+							&cli.StringFlag{
+								Name:    "cid",
+								Aliases: []string{"c"},
+								Value:   "null",
+								Usage:   "Search files by CID",
+							},
+							&cli.StringFlag{
+								Name:    "amount",
+								Aliases: []string{"a"},
+								Value:   "10",
+								Usage:   "The number of files you would like to return, default 10 max 1000",
+							},
+							&cli.StringFlag{
+								Name:    "name",
+								Aliases: []string{"n"},
+								Value:   "null",
+								Usage:   "The name of the file",
+							},
+							&cli.StringFlag{
+								Name:    "status",
+								Aliases: []string{"s"},
+								Value:   "pinned",
+								Usage:   "Status of the file. Options are 'pinned', 'unpinned', or 'all'. Default: 'pinned'",
+							},
+							&cli.StringFlag{
+								Name:    "pageOffset",
+								Aliases: []string{"p"},
+								Value:   "null",
+								Usage:   "Allows you to paginate through files. If your file amount is 10, then you could set the pageOffset to '10' to see the next 10 files.",
+							},
+						},
+						Action: func(ctx *cli.Context) error {
+							cid := ctx.String("cid")
+							amount := ctx.String("amount")
+							name := ctx.String("name")
+							status := ctx.String("status")
+							offset := ctx.String("pageOffset")
+							_, err := ListFiles(amount, cid, name, status, offset)
+							return err
+						},
 					},
-					&cli.StringFlag{
-						Name:    "name",
-						Aliases: []string{"n"},
-						Value:   "null",
-						Usage:   "The name of the file",
-					},
-					&cli.StringFlag{
-						Name:    "status",
-						Aliases: []string{"s"},
-						Value:   "pinned",
-						Usage:   "Status of the file. Options are 'pinned', 'unpinned', or 'all'. Default: 'pinned'",
-					},
-					&cli.StringFlag{
-						Name:    "pageOffset",
-						Aliases: []string{"p"},
-						Value:   "null",
-						Usage:   "Allows you to paginate through files. If your file amount is 10, then you could set the pageOffset to '10' to see the next 10 files.",
-					},
-				},
-				Action: func(ctx *cli.Context) error {
-					cid := ctx.String("cid")
-					amount := ctx.String("amount")
-					name := ctx.String("name")
-					status := ctx.String("status")
-					offset := ctx.String("pageOffset")
-					_, err := ListFiles(amount, cid, name, status, offset)
-					return err
 				},
 			},
 		},

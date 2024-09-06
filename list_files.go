@@ -12,8 +12,7 @@ func ListFiles(amount string, cid string, name string, status string, offset str
 	if err != nil {
 		return ListResponse{}, err
 	}
-	host := GetHost()
-	url := fmt.Sprintf("https://%s/files", host, amount, status)
+	url := fmt.Sprintf("https://api.pinata.cloud/v3/files")
 
 	if cid != "null" {
 		url += "&hashContains=" + cid
