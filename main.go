@@ -33,11 +33,11 @@ func main() {
 				Usage:     "Upload a file or folder to Pinata",
 				ArgsUsage: "[path to file]",
 				Flags: []cli.Flag{
-					&cli.IntFlag{
-						Name:    "version",
-						Aliases: []string{"v"},
-						Value:   1,
-						Usage:   "Set desired CID version to either 0 or 1. Default is 1.",
+					&cli.StringFlag{
+						Name:    "group",
+						Aliases: []string{"g"},
+						Value:   "",
+						Usage:   "Upload a file to a specific group by passing in the groupId",
 					},
 					&cli.StringFlag{
 						Name:    "name",
@@ -52,7 +52,7 @@ func main() {
 				},
 				Action: func(ctx *cli.Context) error {
 					filePath := ctx.Args().First()
-					groupId := ctx.String("groupId")
+					groupId := ctx.String("group")
 					name := ctx.String("name")
 					cidOnly := ctx.Bool("cid-only")
 					if filePath == "" {
@@ -68,6 +68,31 @@ func main() {
 				Usage:   "Interact with file groups",
 				Subcommands: []*cli.Command{
 					{
+						Name:    "create",
+						Aliases: []string{"c"},
+						Usage:   "Create a new group",
+						Flags: []cli.Flag{
+							&cli.StringFlag{
+								Name:     "name",
+								Aliases:  []string{"n"},
+								Required: true,
+								Usage:    "The name you want to give for a group",
+							},
+							&cli.BoolFlag{
+								Name:    "public",
+								Aliases: []string{"p"},
+								Value:   false,
+								Usage:   "Determine if the group should be public or not",
+							},
+						},
+						Action: func(ctx *cli.Context) error {
+							name := ctx.String("name")
+							public := ctx.Bool("public")
+							_, err := CreateGroup(name, public)
+							return err
+						},
+					},
+					{
 						Name:    "list",
 						Aliases: []string{"l"},
 						Usage:   "List groups on your account",
@@ -75,7 +100,6 @@ func main() {
 							&cli.BoolFlag{
 								Name:    "public",
 								Aliases: []string{"p"},
-								Value:   true,
 								Usage:   "List only public groups",
 							},
 							&cli.StringFlag{
@@ -89,6 +113,20 @@ func main() {
 							public := ctx.Bool("public")
 							amount := ctx.String("amount")
 							_, err := ListGroups(amount, public)
+							return err
+						},
+					},
+					{
+						Name:      "delete",
+						Aliases:   []string{"d"},
+						Usage:     "Delete a group by ID",
+						ArgsUsage: "[ID of group]",
+						Action: func(ctx *cli.Context) error {
+							groupId := ctx.Args().First()
+							if groupId == "" {
+								return errors.New("no ID provided")
+							}
+							err := DeleteGroup(groupId)
 							return err
 						},
 					},
@@ -109,7 +147,7 @@ func main() {
 							if fileId == "" {
 								return errors.New("no CID provided")
 							}
-							err := Delete(fileId)
+							err := DeleteFile(fileId)
 							return err
 						},
 					},
@@ -119,43 +157,26 @@ func main() {
 						Usage:   "List most recent files",
 						Flags: []cli.Flag{
 							&cli.StringFlag{
-								Name:    "cid",
-								Aliases: []string{"c"},
-								Value:   "null",
-								Usage:   "Search files by CID",
-							},
-							&cli.StringFlag{
 								Name:    "amount",
 								Aliases: []string{"a"},
-								Value:   "10",
 								Usage:   "The number of files you would like to return, default 10 max 1000",
 							},
 							&cli.StringFlag{
-								Name:    "name",
-								Aliases: []string{"n"},
-								Value:   "null",
-								Usage:   "The name of the file",
-							},
-							&cli.StringFlag{
-								Name:    "status",
-								Aliases: []string{"s"},
-								Value:   "pinned",
-								Usage:   "Status of the file. Options are 'pinned', 'unpinned', or 'all'. Default: 'pinned'",
-							},
-							&cli.StringFlag{
-								Name:    "pageOffset",
+								Name:    "pageToken",
 								Aliases: []string{"p"},
-								Value:   "null",
-								Usage:   "Allows you to paginate through files. If your file amount is 10, then you could set the pageOffset to '10' to see the next 10 files.",
+								Usage:   "Allows you to paginate through files.",
+							},
+							&cli.BoolFlag{
+								Name:  "cidPending",
+								Value: true,
+								Usage: "Filter results based on whether or not the CID is pending",
 							},
 						},
 						Action: func(ctx *cli.Context) error {
-							cid := ctx.String("cid")
 							amount := ctx.String("amount")
-							name := ctx.String("name")
-							status := ctx.String("status")
-							offset := ctx.String("pageOffset")
-							_, err := ListFiles(amount, cid, name, status, offset)
+							pageToken := ctx.String("pageToken")
+							cidPending := ctx.Bool("cidPending")
+							_, err := ListFiles(amount, pageToken, cidPending)
 							return err
 						},
 					},

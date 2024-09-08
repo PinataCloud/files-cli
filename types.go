@@ -56,3 +56,14 @@ type GroupListResponse struct {
 		NextPageToken string              `json:"next_page_token"`
 	} `json:"data"`
 }
+
+type GroupCreateResponse struct {
+	Data struct {
+		GroupResponseItem
+	} `json:"data"`
+}
+
+type GroupCreateBody struct {
+	Name     string `json:"name"`
+	IsPublic bool   `json:"is_public"`
+}
