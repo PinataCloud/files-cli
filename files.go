@@ -5,9 +5,10 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strings"
 )
 
-func Delete(id string) error {
+func DeleteFile(id string) error {
 	jwt, err := findToken()
 	if err != nil {
 		return err
@@ -38,21 +39,29 @@ func Delete(id string) error {
 
 }
 
-func ListFiles(amount string, cid string, name string, status string, offset string) (ListResponse, error) {
+func ListFiles(amount string, pageToken string, cidPending bool) (ListResponse, error) {
 	jwt, err := findToken()
 	if err != nil {
 		return ListResponse{}, err
 	}
-	url := fmt.Sprintf("https://api.pinata.cloud/v3/files")
+	url := fmt.Sprintf("https://api.pinata.cloud/v3/files?")
 
-	if cid != "null" {
-		url += "&hashContains=" + cid
+	params := []string{}
+
+	if amount != "" {
+		params = append(params, "limit="+amount)
 	}
-	if name != "null" {
-		url += "&metadata[name]=" + name
+
+	if pageToken != "" {
+		url += "&pagetoken=" + pageToken
 	}
-	if offset != "null" {
-		url += "&pageOffset=" + offset
+
+	if cidPending {
+		url += "&cidPending=true"
+	}
+
+	if len(params) > 0 {
+		url += strings.Join(params, "&")
 	}
 
 	req, err := http.NewRequest("GET", url, nil)
