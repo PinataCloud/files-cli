@@ -34,6 +34,10 @@ type File struct {
 	CreatedAt     string  `json:"created_at"`
 }
 
+type GetFileResponse struct {
+	Data File `json:"data"`
+}
+
 type ListFilesData struct {
 	Files         []File `json:"files"`
 	NextPageToken string `json:"next_page_token"`

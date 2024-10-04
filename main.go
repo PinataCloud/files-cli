@@ -152,6 +152,20 @@ func main() {
 						},
 					},
 					{
+						Name:      "get",
+						Aliases:   []string{"g"},
+						Usage:     "Get file info by ID",
+						ArgsUsage: "[ID of file]",
+						Action: func(ctx *cli.Context) error {
+							fileId := ctx.Args().First()
+							if fileId == "" {
+								return errors.New("no CID provided")
+							}
+							_, err := GetFile(fileId)
+							return err
+						},
+					},
+					{
 						Name:    "list",
 						Aliases: []string{"l"},
 						Usage:   "List most recent files",
