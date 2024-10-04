@@ -39,7 +39,7 @@ func DeleteFile(id string) error {
 
 }
 
-func ListFiles(amount string, pageToken string, cidPending bool) (ListResponse, error) {
+func ListFiles(amount string, pageToken string, cidPending bool, name string, cid string, group string, mime_type string) (ListResponse, error) {
 	jwt, err := findToken()
 	if err != nil {
 		return ListResponse{}, err
@@ -47,6 +47,22 @@ func ListFiles(amount string, pageToken string, cidPending bool) (ListResponse, 
 	url := fmt.Sprintf("https://api.pinata.cloud/v3/files?")
 
 	params := []string{}
+
+	if name != "" {
+		params = append(params, "name="+name)
+	}
+
+	if cid != "" {
+		params = append(params, "cid="+cid)
+	}
+
+	if group != "" {
+		params = append(params, "group="+group)
+	}
+
+	if mime_type != "" {
+		params = append(params, "mimeType="+mime_type)
+	}
 
 	if amount != "" {
 		params = append(params, "limit="+amount)

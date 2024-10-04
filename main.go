@@ -82,7 +82,7 @@ func main() {
 								Name:    "public",
 								Aliases: []string{"p"},
 								Value:   false,
-								Usage:   "Determine if the group should be public or not",
+								Usage:   "Determine if the group should be public",
 							},
 						},
 						Action: func(ctx *cli.Context) error {
@@ -157,6 +157,26 @@ func main() {
 						Usage:   "List most recent files",
 						Flags: []cli.Flag{
 							&cli.StringFlag{
+								Name:    "name",
+								Aliases: []string{"n"},
+								Usage:   "Filter by name of the target file",
+							},
+							&cli.StringFlag{
+								Name:    "cid",
+								Aliases: []string{"c"},
+								Usage:   "Filter results by CID",
+							},
+							&cli.StringFlag{
+								Name:    "group",
+								Aliases: []string{"g"},
+								Usage:   "Filter results by group ID",
+							},
+							&cli.StringFlag{
+								Name:    "mime",
+								Aliases: []string{"m"},
+								Usage:   "Filter results by file mime type",
+							},
+							&cli.StringFlag{
 								Name:    "amount",
 								Aliases: []string{"a"},
 								Usage:   "The number of files you would like to return, default 10 max 1000",
@@ -168,15 +188,19 @@ func main() {
 							},
 							&cli.BoolFlag{
 								Name:  "cidPending",
-								Value: true,
+								Value: false,
 								Usage: "Filter results based on whether or not the CID is pending",
 							},
 						},
 						Action: func(ctx *cli.Context) error {
 							amount := ctx.String("amount")
 							pageToken := ctx.String("pageToken")
+							name := ctx.String("name")
+							cid := ctx.String("cid")
+							group := ctx.String("group")
+							mime := ctx.String("mime")
 							cidPending := ctx.Bool("cidPending")
-							_, err := ListFiles(amount, pageToken, cidPending)
+							_, err := ListFiles(amount, pageToken, cidPending, name, cid, group, mime)
 							return err
 						},
 					},
