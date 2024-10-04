@@ -14,7 +14,7 @@ func SaveJWT(jwt string) error {
 	if err != nil {
 		return err
 	}
-	p := filepath.Join(home, ".pinata-go-cli")
+	p := filepath.Join(home, ".pinata-files-cli")
 	err = os.WriteFile(p, []byte(jwt), 0600)
 	if err != nil {
 		return err
