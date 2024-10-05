@@ -15,7 +15,7 @@ import (
 	"github.com/schollz/progressbar/v3"
 )
 
-func Upload(filePath string, groupId string, name string, cidOnly bool) (UploadResponse, error) {
+func Upload(filePath string, groupId string, name string, verbose bool) (UploadResponse, error) {
 	jwt, err := findToken()
 	if err != nil {
 		return UploadResponse{}, err
@@ -39,7 +39,7 @@ func Upload(filePath string, groupId string, name string, cidOnly bool) (UploadR
 	}
 
 	var requestBody io.Reader
-	if cidOnly {
+	if !verbose {
 		requestBody = body
 	} else {
 		totalSize := int64(body.Len())
@@ -72,24 +72,13 @@ func Upload(filePath string, groupId string, name string, cidOnly bool) (UploadR
 		return UploadResponse{}, err
 	}
 
-	if cidOnly {
-		fmt.Println(response.Data.Cid)
-	} else {
-		fmt.Println("Success!")
-		fmt.Println("CID:", response.Data.Cid)
-		fmt.Println("Name:", response.Data.Name)
-		fmt.Println("Size:", formatSize(response.Data.Size))
-		fmt.Println("Number of Files:", response.Data.NumberOfFiles)
-		fmt.Println("Mime Type:", response.Data.MimeType)
-		fmt.Println("User ID:", response.Data.UserId)
-		fmt.Println("Created At:", response.Data.CreatedAt)
-		if response.Data.IsDuplicate {
-			fmt.Println("Duplicate:", response.Data.IsDuplicate)
-		}
-		if response.Data.GroupId != "" {
-			fmt.Println("Group ID:", response.Data.GroupId)
-		}
+	formattedJSON, err := json.MarshalIndent(response.Data, "", "    ")
+	if err != nil {
+		return UploadResponse{}, errors.New("failed to format JSON")
 	}
+
+	fmt.Println(string(formattedJSON))
+
 	return response, nil
 }
 

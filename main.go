@@ -47,19 +47,19 @@ func main() {
 						Usage:   "Add a name for the file you are uploading. By default it will use the filename on your system.",
 					},
 					&cli.BoolFlag{
-						Name:  "cid-only",
-						Usage: "Use if you only want the CID returned after an upload",
+						Name:  "verbose",
+						Usage: "Show upload progress",
 					},
 				},
 				Action: func(ctx *cli.Context) error {
 					filePath := ctx.Args().First()
 					groupId := ctx.String("group")
 					name := ctx.String("name")
-					cidOnly := ctx.Bool("cid-only")
+					verbose := ctx.Bool("verbose")
 					if filePath == "" {
 						return errors.New("no file path provided")
 					}
-					_, err := Upload(filePath, groupId, name, cidOnly)
+					_, err := Upload(filePath, groupId, name, verbose)
 					return err
 				},
 			},
