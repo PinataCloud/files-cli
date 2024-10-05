@@ -130,6 +130,20 @@ func main() {
 							return err
 						},
 					},
+					{
+						Name:      "get",
+						Aliases:   []string{"g"},
+						Usage:     "Get group info by ID",
+						ArgsUsage: "[ID of group]",
+						Action: func(ctx *cli.Context) error {
+							groupId := ctx.Args().First()
+							if groupId == "" {
+								return errors.New("no ID provided")
+							}
+							_, err := GetGroup(groupId)
+							return err
+						},
+					},
 				},
 			},
 			{

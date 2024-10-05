@@ -9,6 +9,47 @@ import (
 	"strings"
 )
 
+func GetGroup(id string) (GroupCreateResponse, error) {
+	jwt, err := findToken()
+	if err != nil {
+		return GroupCreateResponse{}, err
+	}
+	url := fmt.Sprintf("https://api.pinata.cloud/v3/files/groups/%s", id)
+
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return GroupCreateResponse{}, errors.Join(err, errors.New("failed to create the request"))
+	}
+	req.Header.Set("Authorization", "Bearer "+string(jwt))
+	req.Header.Set("content-type", "application/json")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return GroupCreateResponse{}, errors.Join(err, errors.New("failed to send the request"))
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != 200 {
+		return GroupCreateResponse{}, fmt.Errorf("server Returned an error %d, check CID", resp.StatusCode)
+	}
+	var response GroupCreateResponse
+
+	err = json.NewDecoder(resp.Body).Decode(&response)
+	if err != nil {
+		return GroupCreateResponse{}, err
+	}
+	formattedJSON, err := json.MarshalIndent(response.Data, "", "    ")
+	if err != nil {
+		return GroupCreateResponse{}, errors.New("failed to format JSON")
+	}
+
+	fmt.Println(string(formattedJSON))
+
+	return response, nil
+
+}
+
 func ListGroups(amount string, isPublic bool) (GroupListResponse, error) {
 	jwt, err := findToken()
 	if err != nil {
