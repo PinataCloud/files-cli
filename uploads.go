@@ -38,13 +38,17 @@ func Upload(filePath string, groupId string, name string, cidOnly bool) (UploadR
 		return UploadResponse{}, err
 	}
 
-	totalSize := int64(body.Len())
-	fmt.Printf("Uploading %s (%s)\n", stats.Name(), formatSize(int(totalSize)))
-
-	progressBody := newProgressReader(body, totalSize)
+	var requestBody io.Reader
+	if cidOnly {
+		requestBody = body
+	} else {
+		totalSize := int64(body.Len())
+		fmt.Printf("Uploading %s (%s)\n", stats.Name(), formatSize(int(totalSize)))
+		requestBody = newProgressReader(body, totalSize)
+	}
 
 	url := fmt.Sprintf("https://uploads.pinata.cloud/v3/files")
-	req, err := http.NewRequest("POST", url, progressBody)
+	req, err := http.NewRequest("POST", url, requestBody)
 	if err != nil {
 		return UploadResponse{}, errors.Join(err, errors.New("failed to create the request"))
 	}
@@ -59,23 +63,15 @@ func Upload(filePath string, groupId string, name string, cidOnly bool) (UploadR
 	if resp.StatusCode != 200 {
 		return UploadResponse{}, fmt.Errorf("server Returned an error %d", resp.StatusCode)
 	}
-	err = progressBody.bar.Set(int(totalSize))
-	if err != nil {
-		return UploadResponse{}, err
-	}
-	fmt.Println()
-	defer func(Body io.ReadCloser) {
-		err := Body.Close()
-		if err != nil {
-			log.Fatal("could not close request body")
-		}
-	}(resp.Body)
+
+	defer resp.Body.Close()
 
 	var response UploadResponse
 	err = json.NewDecoder(resp.Body).Decode(&response)
 	if err != nil {
 		return UploadResponse{}, err
 	}
+
 	if cidOnly {
 		fmt.Println(response.Data.Cid)
 	} else {
@@ -104,7 +100,6 @@ type progressReader struct {
 
 func cmpl() {
 	fmt.Println()
-	fmt.Println("Upload complete, pinning...")
 }
 
 func newProgressReader(r io.Reader, size int64) *progressReader {

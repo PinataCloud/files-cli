@@ -73,12 +73,6 @@ func main() {
 						Aliases: []string{"c"},
 						Usage:   "Create a new group",
 						Flags: []cli.Flag{
-							&cli.StringFlag{
-								Name:     "name",
-								Aliases:  []string{"n"},
-								Required: true,
-								Usage:    "The name you want to give for a group",
-							},
 							&cli.BoolFlag{
 								Name:    "public",
 								Aliases: []string{"p"},
@@ -87,7 +81,7 @@ func main() {
 							},
 						},
 						Action: func(ctx *cli.Context) error {
-							name := ctx.String("name")
+							name := ctx.Args().First()
 							public := ctx.Bool("public")
 							_, err := CreateGroup(name, public)
 							return err
@@ -109,11 +103,23 @@ func main() {
 								Value:   "10",
 								Usage:   "The number of groups you would like to return",
 							},
+							&cli.StringFlag{
+								Name:    "name",
+								Aliases: []string{"n"},
+								Usage:   "Filter groups by name",
+							},
+							&cli.StringFlag{
+								Name:    "token",
+								Aliases: []string{"t"},
+								Usage:   "Paginate through results using the pageToken",
+							},
 						},
 						Action: func(ctx *cli.Context) error {
 							public := ctx.Bool("public")
 							amount := ctx.String("amount")
-							_, err := ListGroups(amount, public)
+							name := ctx.String("name")
+							token := ctx.String("token")
+							_, err := ListGroups(amount, public, name, token)
 							return err
 						},
 					},
@@ -211,9 +217,9 @@ func main() {
 								Usage:   "The number of files you would like to return, default 10 max 1000",
 							},
 							&cli.StringFlag{
-								Name:    "pageToken",
-								Aliases: []string{"p"},
-								Usage:   "Allows you to paginate through files.",
+								Name:    "token",
+								Aliases: []string{"t"},
+								Usage:   "Paginate through file results using the pageToken",
 							},
 							&cli.BoolFlag{
 								Name:  "cidPending",
@@ -223,13 +229,13 @@ func main() {
 						},
 						Action: func(ctx *cli.Context) error {
 							amount := ctx.String("amount")
-							pageToken := ctx.String("pageToken")
+							token := ctx.String("token")
 							name := ctx.String("name")
 							cid := ctx.String("cid")
 							group := ctx.String("group")
 							mime := ctx.String("mime")
 							cidPending := ctx.Bool("cidPending")
-							_, err := ListFiles(amount, pageToken, cidPending, name, cid, group, mime)
+							_, err := ListFiles(amount, token, cidPending, name, cid, group, mime)
 							return err
 						},
 					},

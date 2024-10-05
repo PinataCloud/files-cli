@@ -98,7 +98,6 @@ func GetSignedURL(cid string, expires int) (GetSignedURLResponse, error) {
 		return GetSignedURLResponse{}, err
 	}
 
-	// Unescape the URL
 	unescapedURL := strings.ReplaceAll(response.Data, "\\u0026", "&")
 	unescapedURL = strings.Trim(unescapedURL, "\"")
 

@@ -50,7 +50,7 @@ func GetGroup(id string) (GroupCreateResponse, error) {
 
 }
 
-func ListGroups(amount string, isPublic bool) (GroupListResponse, error) {
+func ListGroups(amount string, isPublic bool, name string, token string) (GroupListResponse, error) {
 	jwt, err := findToken()
 	if err != nil {
 		return GroupListResponse{}, err
@@ -65,6 +65,14 @@ func ListGroups(amount string, isPublic bool) (GroupListResponse, error) {
 
 	if isPublic {
 		params = append(params, "isPublic=true")
+	}
+
+	if name != "" {
+		params = append(params, "name="+name)
+	}
+
+	if token != "" {
+		params = append(params, "pageToken="+token)
 	}
 
 	if len(params) > 0 {
