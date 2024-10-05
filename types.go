@@ -71,3 +71,14 @@ type GroupCreateBody struct {
 	Name     string `json:"name"`
 	IsPublic bool   `json:"is_public"`
 }
+
+type GetSignedURLBody struct {
+	URL     string `json:"url"`
+	Expires int    `json:"expires"`
+	Date    int64  `json:"date"`
+	Method  string `json:"method"`
+}
+
+type GetSignedURLResponse struct {
+	Data string `json:"data"`
+}

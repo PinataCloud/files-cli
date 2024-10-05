@@ -4,6 +4,7 @@ import (
 	"errors"
 	"log"
 	"os"
+	"strconv"
 
 	"github.com/urfave/cli/v2"
 )
@@ -159,7 +160,7 @@ func main() {
 						Action: func(ctx *cli.Context) error {
 							fileId := ctx.Args().First()
 							if fileId == "" {
-								return errors.New("no CID provided")
+								return errors.New("no file ID provided")
 							}
 							err := DeleteFile(fileId)
 							return err
@@ -229,6 +230,50 @@ func main() {
 							mime := ctx.String("mime")
 							cidPending := ctx.Bool("cidPending")
 							_, err := ListFiles(amount, pageToken, cidPending, name, cid, group, mime)
+							return err
+						},
+					},
+				},
+			},
+			{
+				Name:    "gateways",
+				Aliases: []string{"gw"},
+				Usage:   "Interact with your gateways on Pinata",
+				Subcommands: []*cli.Command{
+					{
+						Name:      "set",
+						Aliases:   []string{"s"},
+						Usage:     "Set your default gateway to be used by the CLI",
+						ArgsUsage: "[domain of the gateway]",
+						Action: func(ctx *cli.Context) error {
+							domain := ctx.Args().First()
+							if domain == "" {
+								return errors.New("No domain provided")
+							}
+							err := SetGateway(domain)
+							return err
+						},
+					},
+					{
+						Name:      "sign",
+						Aliases:   []string{"s"},
+						Usage:     "Get a signed URL for a file by CID",
+						ArgsUsage: "[cid of the file, number of seconds the url is valid for]",
+						Action: func(ctx *cli.Context) error {
+							cid := ctx.Args().First()
+							if cid == "" {
+								return errors.New("No CID provided")
+							}
+							expires := ctx.Args().Get(1)
+							if expires == "" {
+								return errors.New("No expire time provided")
+							}
+
+							expiresInt, err := strconv.Atoi(expires)
+							if err != nil {
+								return errors.New("Invalid expire time")
+							}
+							_, err = GetSignedURL(cid, expiresInt)
 							return err
 						},
 					},
