@@ -271,8 +271,9 @@ func main() {
 								return errors.New("No CID provided")
 							}
 							expires := ctx.Args().Get(1)
+
 							if expires == "" {
-								return errors.New("No expire time provided")
+								expires = "30"
 							}
 
 							expiresInt, err := strconv.Atoi(expires)
