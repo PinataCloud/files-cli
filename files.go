@@ -162,11 +162,11 @@ func ListFiles(amount string, pageToken string, cidPending bool, name string, ci
 	}
 
 	if pageToken != "" {
-		url += "&pagetoken=" + pageToken
+		params = append(params, "pageToken="+pageToken)
 	}
 
 	if cidPending {
-		url += "&cidPending=true"
+		params = append(params, "cidPending=true")
 	}
 
 	if len(params) > 0 {
