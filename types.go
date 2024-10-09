@@ -24,14 +24,19 @@ type Metadata struct {
 }
 
 type File struct {
-	Id            string  `json:"id"`
-	Name          string  `json:"name"`
-	Cid           string  `json:"cid"`
-	Size          int     `json:"size"`
-	NumberOfFiles int     `json:"number_of_files"`
-	MimeType      string  `json:"mime_type"`
-	GroupId       *string `json:"group_id,omitempty"`
-	CreatedAt     string  `json:"created_at"`
+	Id            string                 `json:"id"`
+	Name          string                 `json:"name"`
+	Cid           string                 `json:"cid"`
+	Size          int                    `json:"size"`
+	NumberOfFiles int                    `json:"number_of_files"`
+	MimeType      string                 `json:"mime_type"`
+	KeyValues     map[string]interface{} `json:"keyvalues"`
+	GroupId       *string                `json:"group_id,omitempty"`
+	CreatedAt     string                 `json:"created_at"`
+}
+
+type FileUpdateBody struct {
+	Name string `json:"name"`
 }
 
 type GetFileResponse struct {
