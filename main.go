@@ -124,6 +124,35 @@ func main() {
 						},
 					},
 					{
+						Name:      "update",
+						Aliases:   []string{"u"},
+						Usage:     "Update a group",
+						ArgsUsage: "[ID of group]",
+						Flags: []cli.Flag{
+							&cli.BoolFlag{
+								Name:    "public",
+								Aliases: []string{"p"},
+								Value:   false,
+								Usage:   "Determine if the group should be public",
+							},
+							&cli.StringFlag{
+								Name:    "name",
+								Aliases: []string{"n"},
+								Usage:   "Update the name of a group",
+							},
+						},
+						Action: func(ctx *cli.Context) error {
+							groupId := ctx.Args().First()
+							name := ctx.String("name")
+							public := ctx.Bool("public")
+							if groupId == "" {
+								return errors.New("no ID provided")
+							}
+							_, err := UpdateGroup(groupId, name, public)
+							return err
+						},
+					},
+					{
 						Name:      "delete",
 						Aliases:   []string{"d"},
 						Usage:     "Delete a group by ID",
@@ -183,6 +212,28 @@ func main() {
 								return errors.New("no CID provided")
 							}
 							_, err := GetFile(fileId)
+							return err
+						},
+					},
+					{
+						Name:      "update",
+						Aliases:   []string{"u"},
+						Usage:     "Update a file by ID",
+						ArgsUsage: "[ID of file]",
+						Flags: []cli.Flag{
+							&cli.StringFlag{
+								Name:    "name",
+								Aliases: []string{"n"},
+								Usage:   "Update the name of a file",
+							},
+						},
+						Action: func(ctx *cli.Context) error {
+							fileId := ctx.Args().First()
+							name := ctx.String("name")
+							if fileId == "" {
+								return errors.New("no ID provided")
+							}
+							_, err := UpdateFile(fileId, name)
 							return err
 						},
 					},
