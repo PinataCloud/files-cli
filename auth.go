@@ -14,7 +14,7 @@ func SaveJWT(jwt string) error {
 	if err != nil {
 		return err
 	}
-	p := filepath.Join(home, ".pinata-go-cli")
+	p := filepath.Join(home, ".pinata-files-cli")
 	err = os.WriteFile(p, []byte(jwt), 0600)
 	if err != nil {
 		return err
@@ -44,6 +44,23 @@ func SaveJWT(jwt string) error {
 
 	fmt.Println("Authentication Successful!")
 	return nil
+}
+
+func findToken() ([]byte, error) {
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return nil, err
+	}
+	dotFilePath := filepath.Join(homeDir, ".pinata-files-cli")
+	JWT, err := os.ReadFile(dotFilePath)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return nil, errors.New("JWT not found. Please authorize first using the 'auth' command")
+		} else {
+			return nil, err
+		}
+	}
+	return JWT, err
 }
 
 func GetHost() string {
