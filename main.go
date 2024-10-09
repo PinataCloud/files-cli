@@ -31,7 +31,7 @@ func main() {
 			{
 				Name:      "upload",
 				Aliases:   []string{"u"},
-				Usage:     "Upload a file or folder to Pinata",
+				Usage:     "Upload a file to Pinata",
 				ArgsUsage: "[path to file]",
 				Flags: []cli.Flag{
 					&cli.StringFlag{
@@ -69,9 +69,10 @@ func main() {
 				Usage:   "Interact with file groups",
 				Subcommands: []*cli.Command{
 					{
-						Name:    "create",
-						Aliases: []string{"c"},
-						Usage:   "Create a new group",
+						Name:      "create",
+						Aliases:   []string{"c"},
+						Usage:     "Create a new group",
+						ArgsUsage: "[name of group]",
 						Flags: []cli.Flag{
 							&cli.BoolFlag{
 								Name:    "public",
@@ -265,7 +266,7 @@ func main() {
 							&cli.StringFlag{
 								Name:    "amount",
 								Aliases: []string{"a"},
-								Usage:   "The number of files you would like to return, default 10 max 1000",
+								Usage:   "The number of files you would like to return",
 							},
 							&cli.StringFlag{
 								Name:    "token",
@@ -315,7 +316,7 @@ func main() {
 						Name:      "sign",
 						Aliases:   []string{"s"},
 						Usage:     "Get a signed URL for a file by CID",
-						ArgsUsage: "[cid of the file, number of seconds the url is valid for]",
+						ArgsUsage: "[cid of the file, seconds the url is valid for]",
 						Action: func(ctx *cli.Context) error {
 							cid := ctx.Args().First()
 							if cid == "" {
