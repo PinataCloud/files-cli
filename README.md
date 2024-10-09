@@ -20,13 +20,13 @@ brew install PinataCloud/files-cli/files-cli
 
 To build and instal from source make sure you have [Go](https://go.dev/) installed on your computer and the following command returns a version:
 
-```shell
+```
 go version
 ```
 
 Then paste and run the following into your terminal:
 
-```shell
+```
 git clone https://github.com/PinataCloud/files-cli && cd files-cli && go install .
 ```
 
@@ -52,13 +52,13 @@ The Pinata CLI is equipped with the majortiry of features on the Pinata API.
 
 With the CLI installed you will first need to authenticate it with your [Pinata JWT](https://docs.pinata.cloud/account-management/api-keys)
 
-```shell
+```
 pinata auth <your-jwt>
 ```
 
 ### `upload`
 
-```shell
+```
 NAME:
    pinata upload - Upload a file to Pinata
 
@@ -74,7 +74,7 @@ OPTIONS:
 
 ### `files`
 
-```shell
+```
 NAME:
    pinata files - Interact with your files on Pinata
 
@@ -94,7 +94,7 @@ OPTIONS:
 
 #### `get`
 
-```shell
+```
 NAME:
    pinata files get - Get file info by ID
 
@@ -107,7 +107,7 @@ OPTIONS:
 
 #### `list`
 
-```shell
+```
 NAME:
    pinata files list - List most recent files
 
@@ -127,7 +127,7 @@ OPTIONS:
 
 #### `update`
 
-```shell
+```
 NAME:
    pinata files update - Update a file by ID
 
@@ -141,7 +141,7 @@ OPTIONS:
 
 #### `delete`
 
-```shell
+```
 NAME:
    pinata files delete - Delete a file by ID
 
@@ -154,7 +154,7 @@ OPTIONS:
 
 ### `groups`
 
-```shell
+```
 NAME:
    pinata groups - Interact with file groups
 
@@ -175,7 +175,7 @@ OPTIONS:
 
 #### `create`
 
-```shell
+```
 NAME:
    pinata groups create - Create a new group
 
@@ -189,7 +189,7 @@ OPTIONS:
 
 #### `get`
 
-```shell
+```
 NAME:
    pinata groups get - Get group info by ID
 
@@ -202,7 +202,7 @@ OPTIONS:
 
 #### `list`
 
-```shell
+```
 NAME:
    pinata groups list - List groups on your account
 
@@ -219,7 +219,7 @@ OPTIONS:
 
 ### `gateways`
 
-```shell
+```
 USAGE:
    pinata gateways command [command options] [arguments...]
 
@@ -231,7 +231,7 @@ COMMANDS:
 
 #### `set`
 
-```shell
+```
 NAME:
    pinata gateways set - Set your default gateway to be used by the CLI
 
@@ -244,7 +244,7 @@ OPTIONS:
 
 #### `sign`
 
-```shell
+```
 NAME:
    pinata gateways sign - Get a signed URL for a file by CID
 
