@@ -1,10 +1,12 @@
 # Pinata Files CLI
 
+![cover](https://dweb.mypinata.cloud/ipfs/QmZUSnRfQ99Z9Ph3ys3hyczQoHVbisuNrbjRYntAuW5tiq?img-format=webp)
 The official CLI for the Files API written in Go
 
 ## Installation
 
-> [!NOTE] - If you are on Windows please use WSL when installing, as the current implementation will not work natively on Windows OS.
+> [!NOTE]
+> If you are on Windows please use WSL when installing, as the current implementation will not work natively on Windows OS.
 
 We will be working on an install script, but for now there are a few other ways you can install the CLI.
 
