@@ -87,3 +87,13 @@ type GetSignedURLBody struct {
 type GetSignedURLResponse struct {
 	Data string `json:"data"`
 }
+
+type GetGatewayItem struct {
+	Domain string `json:"domain"`
+}
+
+type GetGatewaysResponse struct {
+	Data struct {
+		Rows []GetGatewayItem
+	} `json:"data"`
+}

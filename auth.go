@@ -9,7 +9,16 @@ import (
 	"time"
 )
 
-func SaveJWT(jwt string) error {
+func SaveJWT() error {
+	jwt, err := GetInput("Enter your Pinata JWT")
+	if err != nil {
+		return err
+	}
+
+	if jwt == "" {
+		return errors.New("JWT cannot be empty")
+	}
+
 	home, err := os.UserHomeDir()
 	if err != nil {
 		return err
@@ -43,6 +52,11 @@ func SaveJWT(jwt string) error {
 	}
 
 	fmt.Println("Authentication Successful!")
+	err = SetGateway("")
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
