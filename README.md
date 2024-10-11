@@ -6,7 +6,7 @@ The official CLI for the Files API written in Go
 ## Installation
 
 > [!NOTE]
-> If you are on Windows please use WSL when installing, as the current implementation will not work natively on Windows OS.
+> If you are on Windows please use WSL when installing. If you get an error that it was not able to resolve the github host run `git config --global --unset http.proxy`
 
 ### Install Script
 
