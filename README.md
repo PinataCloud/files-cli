@@ -1,6 +1,6 @@
 # Pinata Files CLI
 
-![cover](https://dweb.mypinata.cloud/ipfs/QmZUSnRfQ99Z9Ph3ys3hyczQoHVbisuNrbjRYntAuW5tiq?img-format=webp)
+![cover](https://dweb.mypinata.cloud/ipfs/QmNcdx9t48z7RQUXUZZHmuc4zBfyBxKLjDfEgmfhiop7j7?img-format=webp)
 The official CLI for the Files API written in Go
 
 ## Installation
@@ -238,6 +238,9 @@ COMMANDS:
 ```
 
 #### `set`
+
+> [!TIP]
+> Pass no arguments and get a list of your gateways to choose from!
 
 ```
 NAME:
