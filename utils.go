@@ -41,6 +41,10 @@ func initialInputModel() inputModel {
 	ti.EchoMode = textinput.EchoPassword
 	ti.EchoCharacter = '•'
 
+	ti.Prompt = "> "
+	ti.PromptStyle = itemStyle
+	ti.TextStyle = itemStyle
+
 	return inputModel{
 		textInput: ti,
 		err:       nil,
