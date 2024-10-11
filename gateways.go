@@ -30,6 +30,57 @@ func findGatewayDomain() ([]byte, error) {
 }
 
 func SetGateway(domain string) error {
+	if domain == "" {
+		jwt, err := findToken()
+		if err != nil {
+			return err
+		}
+		url := fmt.Sprintf("https://api.pinata.cloud/v3/ipfs/gateways")
+
+		req, err := http.NewRequest("GET", url, nil)
+		if err != nil {
+			return errors.Join(err, errors.New("failed to create the request"))
+		}
+		req.Header.Set("Authorization", "Bearer "+string(jwt))
+		req.Header.Set("content-type", "application/json")
+
+		client := &http.Client{}
+		resp, err := client.Do(req)
+		if err != nil {
+			return errors.Join(err, errors.New("failed to send the request"))
+		}
+		defer resp.Body.Close()
+
+		if resp.StatusCode != 200 {
+			return fmt.Errorf("server Returned an error %d", resp.StatusCode)
+		}
+		var response GetGatewaysResponse
+
+		err = json.NewDecoder(resp.Body).Decode(&response)
+		if err != nil {
+			return err
+		}
+
+		options := make([]string, len(response.Data.Rows))
+		for i, item := range response.Data.Rows {
+			options[i] = item.Domain + ".mypinata.cloud"
+		}
+		domain, err := MultiSelect(options)
+		if err != nil {
+			fmt.Println("Error:", err)
+			return nil
+		}
+		home, err := os.UserHomeDir()
+		if err != nil {
+			return err
+		}
+		p := filepath.Join(home, ".pinata-files-cli-gateway")
+		err = os.WriteFile(p, []byte(domain), 0600)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
 	home, err := os.UserHomeDir()
 	if err != nil {
 		return err

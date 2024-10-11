@@ -20,11 +20,7 @@ func main() {
 				Usage:     "Authorize the CLI with your Pinata JWT",
 				ArgsUsage: "[your Pinata JWT]",
 				Action: func(ctx *cli.Context) error {
-					jwt := ctx.Args().First()
-					if jwt == "" {
-						return errors.New("no jwt supplied")
-					}
-					err := SaveJWT(jwt)
+					err := SaveJWT()
 					return err
 				},
 			},
@@ -305,9 +301,6 @@ func main() {
 						ArgsUsage: "[domain of the gateway]",
 						Action: func(ctx *cli.Context) error {
 							domain := ctx.Args().First()
-							if domain == "" {
-								return errors.New("No domain provided")
-							}
 							err := SetGateway(domain)
 							return err
 						},
