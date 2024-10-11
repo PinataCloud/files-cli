@@ -306,6 +306,20 @@ func main() {
 						},
 					},
 					{
+						Name:      "open",
+						Aliases:   []string{"o"},
+						Usage:     "Open a file in the browser",
+						ArgsUsage: "[CID of the file]",
+						Action: func(ctx *cli.Context) error {
+							cid := ctx.Args().First()
+							if cid == "" {
+								return errors.New("No CID provided")
+							}
+							err := OpenCID(cid)
+							return err
+						},
+					},
+					{
 						Name:      "sign",
 						Aliases:   []string{"s"},
 						Usage:     "Get a signed URL for a file by CID",

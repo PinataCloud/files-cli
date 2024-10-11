@@ -10,6 +10,8 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/skratchdot/open-golang/open"
 )
 
 func findGatewayDomain() ([]byte, error) {
@@ -155,4 +157,16 @@ func GetSignedURL(cid string, expires int) (GetSignedURLResponse, error) {
 	fmt.Println(unescapedURL)
 
 	return response, nil
+}
+
+func OpenCID(cid string) error {
+	data, err := GetSignedURL(cid, 30)
+	if err != nil {
+		fmt.Errorf("Problem creating URL %d", err)
+	}
+	err = open.Run(data.Data)
+	if err != nil {
+		fmt.Errorf("Problem opening URL %d", err)
+	}
+	return nil
 }
