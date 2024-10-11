@@ -8,7 +8,13 @@ The official CLI for the Files API written in Go
 > [!NOTE]
 > If you are on Windows please use WSL when installing, as the current implementation will not work natively on Windows OS.
 
-We will be working on an install script, but for now there are a few other ways you can install the CLI.
+### Install Script
+
+The easiest way to install is to copy and paste this script into your terminal
+
+```bash
+curl -fsSL https://cli.pinata.cloud/install | bash
+```
 
 ### Homebrew
 
@@ -52,10 +58,10 @@ The Pinata CLI is equipped with the majortiry of features on the Pinata API.
 
 ### `auth`
 
-With the CLI installed you will first need to authenticate it with your [Pinata JWT](https://docs.pinata.cloud/account-management/api-keys)
+With the CLI installed you will first need to authenticate it with your [Pinata JWT](https://docs.pinata.cloud/account-management/api-keys). Run this command and follow the steps to setup the CLI!
 
 ```
-pinata auth <your-jwt>
+pinata auth
 ```
 
 ### `upload`
