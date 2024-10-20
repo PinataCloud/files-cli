@@ -123,14 +123,15 @@ USAGE:
    pinata files list [command options] [arguments...]
 
 OPTIONS:
-   --name value, -n value    Filter by name of the target file
-   --cid value, -c value     Filter results by CID
-   --group value, -g value   Filter results by group ID
-   --mime value, -m value    Filter results by file mime type
-   --amount value, -a value  The number of files you would like to return
-   --token value, -t value   Paginate through file results using the pageToken
-   --cidPending              Filter results based on whether or not the CID is pending (default: false)
-   --help, -h                show help
+   --name value, -n value                                           Filter by name of the target file
+   --cid value, -c value                                            Filter results by CID
+   --group value, -g value                                          Filter results by group ID
+   --mime value, -m value                                           Filter results by file mime type
+   --amount value, -a value                                         The number of files you would like to return
+   --token value, -t value                                          Paginate through file results using the pageToken
+   --cidPending                                                     Filter results based on whether or not the CID is pending (default: false)
+   --keyvalues value, --kv value [ --keyvalues value, --kv value ]  Filter results by metadata keyvalues (format: key=value)
+   --help, -h                                                       show help
 ```
 
 #### `update`
