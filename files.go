@@ -132,7 +132,7 @@ func UpdateFile(id string, name string) (GetFileResponse, error) {
 
 }
 
-func ListFiles(amount string, pageToken string, cidPending bool, name string, cid string, group string, mime_type string) (ListResponse, error) {
+func ListFiles(amount string, pageToken string, cidPending bool, name string, cid string, group string, mime_type string, keyvalues map[string]string) (ListResponse, error) {
 	jwt, err := findToken()
 	if err != nil {
 		return ListResponse{}, err
@@ -167,6 +167,12 @@ func ListFiles(amount string, pageToken string, cidPending bool, name string, ci
 
 	if cidPending {
 		params = append(params, "cidPending=true")
+	}
+
+	if len(keyvalues) > 0 {
+		for key, value := range keyvalues {
+			params = append(params, fmt.Sprintf("metadata[%s]=%s", key, value))
+		}
 	}
 
 	if len(params) > 0 {

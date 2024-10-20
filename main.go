@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/urfave/cli/v2"
 )
@@ -274,6 +275,11 @@ func main() {
 								Value: false,
 								Usage: "Filter results based on whether or not the CID is pending",
 							},
+							&cli.StringSliceFlag{
+								Name:    "keyvalues",
+								Aliases: []string{"kv"},
+								Usage:   "Filter results by metadata keyvalues (format: key=value)",
+							},
 						},
 						Action: func(ctx *cli.Context) error {
 							amount := ctx.String("amount")
@@ -283,7 +289,15 @@ func main() {
 							group := ctx.String("group")
 							mime := ctx.String("mime")
 							cidPending := ctx.Bool("cidPending")
-							_, err := ListFiles(amount, token, cidPending, name, cid, group, mime)
+							keyvaluesSlice := ctx.StringSlice("keyvalues")
+							keyvalues := make(map[string]string)
+							for _, kv := range keyvaluesSlice {
+								parts := strings.SplitN(kv, "=", 2)
+								if len(parts) == 2 {
+									keyvalues[parts[0]] = parts[1]
+								}
+							}
+							_, err := ListFiles(amount, token, cidPending, name, cid, group, mime, keyvalues)
 							return err
 						},
 					},
