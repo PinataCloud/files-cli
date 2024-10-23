@@ -176,6 +176,8 @@ COMMANDS:
    update, u  Update a group
    delete, d  Delete a group by ID
    get, g     Get group info by ID
+   add, a     Add a file to a group
+   remove, r  Remove a file from a group
    help, h    Shows a list of commands or help for one command
 
 OPTIONS:
@@ -224,6 +226,32 @@ OPTIONS:
    --name value, -n value    Filter groups by name
    --token value, -t value   Paginate through results using the pageToken
    --help, -h                show help
+```
+
+#### `add`
+
+```
+NAME:
+   pinata groups add - Add a file to a group
+
+USAGE:
+   pinata groups add [command options] [group id] [file id]
+
+OPTIONS:
+   --help, -h  show help
+```
+
+#### `remove`
+
+```
+NAME:
+   pinata groups remove - Remove a file from a group
+
+USAGE:
+   pinata groups remove [command options] [group id] [file id]
+
+OPTIONS:
+   --help, -h  show help
 ```
 
 ### `gateways`
@@ -283,6 +311,64 @@ NAME:
 
 USAGE:
    pinata gateways open [command options] [CID of the file]
+
+OPTIONS:
+   --help, -h  show help
+```
+
+### Swaps
+
+```
+NAME:
+   pinata swaps - Interact and manage hot swaps on Pinata
+
+USAGE:
+   pinata swaps command [command options] [arguments...]
+
+COMMANDS:
+   list, l    List swaps for a given gateway domain or for your config gateway domain
+   add, a     Add a swap for a CID
+   delete, d  Remeove a swap for a CID
+   help, h    Shows a list of commands or help for one command
+
+OPTIONS:
+   --help, -h  show help
+```
+
+#### `list`
+
+```
+NAME:
+   pinata swaps list - List swaps for a given gateway domain or for your config gateway domain
+
+USAGE:
+   pinata swaps list [command options] [cid] [optional gateway domain]
+
+OPTIONS:
+   --help, -h  show help
+```
+
+#### `add`
+
+```
+NAME:
+   pinata swaps add - Add a swap for a CID
+
+USAGE:
+   pinata swaps add [command options] [cid] [swap cid]
+
+OPTIONS:
+   --help, -h  show help
+```
+
+#### `delete`
+
+```
+NAME:
+   pinata swaps delete - Remeove a swap for a CID
+
+USAGE:
+   pinata swaps delete [command options] [cid]
 
 OPTIONS:
    --help, -h  show help
