@@ -250,3 +250,65 @@ func DeleteGroup(id string) error {
 	return nil
 
 }
+
+func AddFile(groupId string, fileId string) error {
+
+	jwt, err := findToken()
+	if err != nil {
+		return err
+	}
+	url := fmt.Sprintf("https://api.pinata.cloud/v3/files/groups/%s/ids/%s", groupId, fileId)
+
+	req, err := http.NewRequest("PUT", url, nil)
+	if err != nil {
+		return errors.Join(err, errors.New("failed to create the request"))
+	}
+	req.Header.Set("Authorization", "Bearer "+string(jwt))
+	req.Header.Set("content-type", "application/json")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return errors.Join(err, errors.New("failed to send the request"))
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != 200 {
+		return fmt.Errorf("server Returned an error %d, check CID", resp.StatusCode)
+	}
+
+	fmt.Println("File added to group")
+
+	return nil
+}
+
+func RemoveFile(groupId string, fileId string) error {
+
+	jwt, err := findToken()
+	if err != nil {
+		return err
+	}
+	url := fmt.Sprintf("https://api.pinata.cloud/v3/files/groups/%s/ids/%s", groupId, fileId)
+
+	req, err := http.NewRequest("DELETE", url, nil)
+	if err != nil {
+		return errors.Join(err, errors.New("failed to create the request"))
+	}
+	req.Header.Set("Authorization", "Bearer "+string(jwt))
+	req.Header.Set("content-type", "application/json")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return errors.Join(err, errors.New("failed to send the request"))
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != 200 {
+		return fmt.Errorf("server Returned an error %d, check CID", resp.StatusCode)
+	}
+
+	fmt.Println("File removed from group")
+
+	return nil
+}

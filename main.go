@@ -178,6 +178,42 @@ func main() {
 							return err
 						},
 					},
+					{
+						Name:      "add",
+						Aliases:   []string{"a"},
+						Usage:     "Add a file to a group",
+						ArgsUsage: "[group id] [file id]",
+						Action: func(ctx *cli.Context) error {
+							groupId := ctx.Args().First()
+							fileId := ctx.Args().Get(1)
+							if groupId == "" {
+								return errors.New("no group id provided")
+							}
+							if fileId == "" {
+								return errors.New("no file id provided")
+							}
+							err := AddFile(groupId, fileId)
+							return err
+						},
+					},
+					{
+						Name:      "remove",
+						Aliases:   []string{"r"},
+						Usage:     "Remove a file from a group",
+						ArgsUsage: "[group id] [file id]",
+						Action: func(ctx *cli.Context) error {
+							groupId := ctx.Args().First()
+							fileId := ctx.Args().Get(1)
+							if groupId == "" {
+								return errors.New("no group id provided")
+							}
+							if fileId == "" {
+								return errors.New("no file id provided")
+							}
+							err := RemoveFile(groupId, fileId)
+							return err
+						},
+					},
 				},
 			},
 			{
