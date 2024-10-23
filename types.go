@@ -97,3 +97,21 @@ type GetGatewaysResponse struct {
 		Rows []GetGatewayItem
 	} `json:"data"`
 }
+
+type GetSwapHistoryResponse struct {
+	Data []struct {
+		MappedCid string `json:"mapped_cid"`
+		CreatedAt string `json:"created_at"`
+	} `json:"data"`
+}
+
+type AddSwapBody struct {
+	SwapCid string `json:"swap_cid"`
+}
+
+type AddSwapResponse struct {
+	Data struct {
+		MappedCid string `json:"mapped_cid"`
+		CreatedAt string `json:"created_at"`
+	} `json:"data"`
+}

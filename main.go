@@ -304,6 +304,48 @@ func main() {
 				},
 			},
 			{
+				Name:    "swaps",
+				Aliases: []string{"s"},
+				Usage:   "Interact and manage hot swaps on Pinata",
+				Subcommands: []*cli.Command{
+					{
+						Name:      "list",
+						Aliases:   []string{"l"},
+						Usage:     "List swaps for a given gateway domain or for your config gateway domain",
+						ArgsUsage: "[cid] [optional gateway domain]",
+						Action: func(ctx *cli.Context) error {
+							cid := ctx.Args().First()
+							domain := ctx.Args().Get(1)
+							_, err := GetSwapHistory(cid, domain)
+							return err
+						},
+					},
+					{
+						Name:      "add",
+						Aliases:   []string{"a"},
+						Usage:     "Add a swap for a CID",
+						ArgsUsage: "[cid] [swap cid]",
+						Action: func(ctx *cli.Context) error {
+							cid := ctx.Args().First()
+							swapCid := ctx.Args().Get(1)
+							_, err := AddSwap(cid, swapCid)
+							return err
+						},
+					},
+					{
+						Name:      "delete",
+						Aliases:   []string{"d"},
+						Usage:     "Remeove a swap for a CID",
+						ArgsUsage: "[cid]",
+						Action: func(ctx *cli.Context) error {
+							cid := ctx.Args().First()
+							err := RemoveSwap(cid)
+							return err
+						},
+					},
+				},
+			},
+			{
 				Name:    "gateways",
 				Aliases: []string{"gw"},
 				Usage:   "Interact with your gateways on Pinata",
