@@ -81,6 +81,9 @@ func main() {
 						Action: func(ctx *cli.Context) error {
 							name := ctx.Args().First()
 							public := ctx.Bool("public")
+							if name == "" {
+								return errors.New("Group name required")
+							}
 							_, err := CreateGroup(name, public)
 							return err
 						},
@@ -352,6 +355,9 @@ func main() {
 						Action: func(ctx *cli.Context) error {
 							cid := ctx.Args().First()
 							domain := ctx.Args().Get(1)
+							if cid == "" {
+								return errors.New("No CID provided")
+							}
 							_, err := GetSwapHistory(cid, domain)
 							return err
 						},
@@ -364,6 +370,12 @@ func main() {
 						Action: func(ctx *cli.Context) error {
 							cid := ctx.Args().First()
 							swapCid := ctx.Args().Get(1)
+							if cid == "" {
+								return errors.New("No CID provided")
+							}
+							if swapCid == "" {
+								return errors.New("No swap CID provided")
+							}
 							_, err := AddSwap(cid, swapCid)
 							return err
 						},
@@ -375,6 +387,9 @@ func main() {
 						ArgsUsage: "[cid]",
 						Action: func(ctx *cli.Context) error {
 							cid := ctx.Args().First()
+							if cid == "" {
+								return errors.New("No CID provided")
+							}
 							err := RemoveSwap(cid)
 							return err
 						},
