@@ -176,9 +176,9 @@ func RevokeKey(id string) error {
 	if err != nil {
 		return err
 	}
-	url := fmt.Sprintf("https://api.pinata.cloud/v3/files/groups/%s", id)
+	url := fmt.Sprintf("https://api.pinata.cloud/v3/pinata/keys/%s", id)
 
-	req, err := http.NewRequest("DELETE", url, nil)
+	req, err := http.NewRequest("PUT", url, nil)
 	if err != nil {
 		return errors.Join(err, errors.New("failed to create the request"))
 	}
@@ -196,7 +196,7 @@ func RevokeKey(id string) error {
 		return fmt.Errorf("server Returned an error %d, check CID", resp.StatusCode)
 	}
 
-	fmt.Println("Group Deleted")
+	fmt.Println("Key Revoked")
 
 	return nil
 

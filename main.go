@@ -535,6 +535,20 @@ func main() {
 							return err
 						},
 					},
+					{
+						Name:      "revoke",
+						Aliases:   []string{"r"},
+						Usage:     "Revoke an API key",
+						ArgsUsage: "[key]",
+						Action: func(ctx *cli.Context) error {
+							key := ctx.Args().First()
+							if key == "" {
+								return errors.New("No key provided")
+							}
+							err := RevokeKey(key)
+							return err
+						},
+					},
 				},
 			},
 		},
