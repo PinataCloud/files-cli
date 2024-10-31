@@ -452,6 +452,105 @@ func main() {
 					},
 				},
 			},
+			{
+				Name:    "keys",
+				Aliases: []string{"k"},
+				Usage:   "Create and manage generated API keys",
+				Subcommands: []*cli.Command{
+					{
+						Name:    "create",
+						Aliases: []string{"c"},
+						Usage:   "Create an API key with admin or scoped permissions",
+						Flags: []cli.Flag{
+							&cli.StringFlag{
+								Name:     "name",
+								Aliases:  []string{"n"},
+								Usage:    "Name of the API key",
+								Required: true,
+							},
+							&cli.BoolFlag{
+								Name:    "admin",
+								Aliases: []string{"a"},
+								Usage:   "Set the key as Admin",
+								Value:   false,
+							},
+							&cli.IntFlag{
+								Name:    "uses",
+								Aliases: []string{"u"},
+								Usage:   "Max uses a key can use",
+							},
+							&cli.StringSliceFlag{
+								Name:    "endpoints",
+								Aliases: []string{"e"},
+								Usage:   "Optional array of endpoints the key is allowed to use",
+							},
+						},
+						Action: func(ctx *cli.Context) error {
+							name := ctx.String("name")
+							admin := ctx.Bool("admin")
+							uses := ctx.Int("uses")
+							endpoints := ctx.StringSlice("endpoints")
+							_, err := CreateKey(name, admin, uses, endpoints)
+							return err
+						},
+					},
+					{
+						Name:    "list",
+						Aliases: []string{"l"},
+						Usage:   "List and filter API key",
+						Flags: []cli.Flag{
+							&cli.StringFlag{
+								Name:    "name",
+								Aliases: []string{"n"},
+								Usage:   "Name of the API key",
+							},
+							&cli.BoolFlag{
+								Name:    "revoked",
+								Aliases: []string{"r"},
+								Usage:   "Set the key as Admin",
+							},
+							&cli.BoolFlag{
+								Name:    "exhausted",
+								Aliases: []string{"e"},
+								Usage:   "Filter keys that are exhausted or not",
+							},
+							&cli.BoolFlag{
+								Name:    "uses",
+								Aliases: []string{"u"},
+								Usage:   "Filter keys that do or don't have limited uses",
+							},
+							&cli.StringFlag{
+								Name:    "offset",
+								Aliases: []string{"o"},
+								Usage:   "Offset the number of results to paginate",
+							},
+						},
+						Action: func(ctx *cli.Context) error {
+							name := ctx.String("name")
+							offset := ctx.String("offset")
+							var revokedPtr, usesPtr, exhaustedPtr *bool
+
+							if ctx.IsSet("revoked") {
+								revoked := ctx.Bool("revoked")
+								revokedPtr = &revoked
+							}
+
+							if ctx.IsSet("uses") {
+								uses := ctx.Bool("uses")
+								usesPtr = &uses
+							}
+
+							if ctx.IsSet("exhausted") {
+								exhausted := ctx.Bool("exhausted")
+								exhaustedPtr = &exhausted
+							}
+
+							_, err := ListKeys(name, revokedPtr, usesPtr, exhaustedPtr, offset)
+							return err
+						},
+					},
+				},
+			},
 		},
 	}
 
