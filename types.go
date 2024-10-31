@@ -115,3 +115,60 @@ type AddSwapResponse struct {
 		CreatedAt string `json:"created_at"`
 	} `json:"data"`
 }
+
+type CreateKeyResponse struct {
+	JWT             string `json:"JWT"`
+	PinataAPIKey    string `json:"pinata_api_key"`
+	PinataAPISecret string `json:"pinata_api_secret"`
+}
+
+type CreatKeyBody struct {
+	KeyName     string      `json:"keyName"`
+	Permissions Permissions `json:"permissions"`
+	MaxUses     int         `json:"maxUses,omitempty"`
+}
+
+type Permissions struct {
+	Admin     bool      `json:"admin,omitempty"`
+	Endpoints Endpoints `json:"endpoints,omitempty"`
+}
+
+type Endpoints struct {
+	Data    DataEndpoints    `json:"data,omitempty"`
+	Pinning PinningEndpoints `json:"pinning,omitempty"`
+}
+
+type DataEndpoints struct {
+	PinList             bool `json:"pinList,omitempty"`
+	UserPinnedDataTotal bool `json:"userPinnedDataTotal,omitempty"`
+}
+
+type PinningEndpoints struct {
+	HashMetadata  bool `json:"hashMetadata,omitempty"`
+	HashPinPolicy bool `json:"hashPinPolicy,omitempty"`
+	PinByHash     bool `json:"pinByHash,omitempty"`
+	PinFileToIPFS bool `json:"pinFileToIPFS,omitempty"`
+	PinJSONToIPFS bool `json:"pinJSONToIPFS,omitempty"`
+	PinJobs       bool `json:"pinJobs,omitempty"`
+	Unpin         bool `json:"unpin,omitempty"`
+	UserPinPolicy bool `json:"userPinPolicy,omitempty"`
+}
+
+type KeyListResponse struct {
+	Keys  []KeyItem `json:"keys"`
+	Count int       `json:"count"`
+}
+
+type KeyItem struct {
+	ID        string      `json:"id"`
+	Name      string      `json:"name"`
+	Key       string      `json:"key"`
+	Secret    string      `json:"secret"`
+	MaxUses   int         `json:"max_uses"`
+	Uses      int         `json:"uses"`
+	UserID    string      `json:"user_id"`
+	Scopes    Permissions `json:"scopes"`
+	Revoked   bool        `json:"revoked"`
+	CreatedAt string      `json:"createdAt"`
+	UpdatedAt string      `json:"updatedAt"`
+}
