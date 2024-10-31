@@ -528,24 +528,10 @@ func main() {
 						Action: func(ctx *cli.Context) error {
 							name := ctx.String("name")
 							offset := ctx.String("offset")
-							var revokedPtr, usesPtr, exhaustedPtr *bool
-
-							if ctx.IsSet("revoked") {
-								revoked := ctx.Bool("revoked")
-								revokedPtr = &revoked
-							}
-
-							if ctx.IsSet("uses") {
-								uses := ctx.Bool("uses")
-								usesPtr = &uses
-							}
-
-							if ctx.IsSet("exhausted") {
-								exhausted := ctx.Bool("exhausted")
-								exhaustedPtr = &exhausted
-							}
-
-							_, err := ListKeys(name, revokedPtr, usesPtr, exhaustedPtr, offset)
+							revoked := ctx.Bool("revoked")
+							uses := ctx.Bool("uses")
+							exhausted := ctx.Bool("exhausted")
+							_, err := ListKeys(name, revoked, uses, exhausted, offset)
 							return err
 						},
 					},

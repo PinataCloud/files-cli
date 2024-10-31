@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-func ListKeys(name string, revoked *bool, limitedUse *bool, exhausted *bool, offset string) (KeyListResponse, error) {
+func ListKeys(name string, revoked bool, limitedUse bool, exhausted bool, offset string) (KeyListResponse, error) {
 	jwt, err := findToken()
 	if err != nil {
 		return KeyListResponse{}, err
@@ -22,16 +22,16 @@ func ListKeys(name string, revoked *bool, limitedUse *bool, exhausted *bool, off
 		params = append(params, "name="+name)
 	}
 
-	if revoked != nil {
-		params = append(params, fmt.Sprintf("revoked=%t", *revoked))
+	if revoked {
+		params = append(params, "revoked=true")
 	}
 
-	if limitedUse != nil {
-		params = append(params, fmt.Sprintf("limitedUse=%t", *limitedUse))
+	if limitedUse {
+		params = append(params, "limitedUse=true")
 	}
 
-	if exhausted != nil {
-		params = append(params, fmt.Sprint("exhausted=%t", *exhausted))
+	if exhausted {
+		params = append(params, "exhausted=true")
 	}
 	if offset != "" {
 		params = append(params, "offset="+offset)
