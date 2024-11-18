@@ -162,11 +162,11 @@ func GetSignedURL(cid string, expires int) (GetSignedURLResponse, error) {
 func OpenCID(cid string) error {
 	data, err := GetSignedURL(cid, 30)
 	if err != nil {
-		fmt.Errorf("Problem creating URL %d", err)
+		return fmt.Errorf("Problem creating URL %d", err)
 	}
 	err = open.Run(data.Data)
 	if err != nil {
-		fmt.Errorf("Problem opening URL %d", err)
+		return fmt.Errorf("Problem opening URL %d", err)
 	}
 	return nil
 }
