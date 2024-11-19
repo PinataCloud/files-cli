@@ -11,27 +11,55 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"time"
 
+	"github.com/eventials/go-tus"
 	"github.com/schollz/progressbar/v3"
 )
 
+const (
+	MAX_SIZE_REGULAR_UPLOAD = 100 * 1024 * 1024 // 100MB in bytes
+	CHUNK_SIZE              = 50 * 1024 * 1024  // 50MB chunk size
+)
+
 func Upload(filePath string, groupId string, name string, verbose bool) (UploadResponse, error) {
-	jwt, err := findToken()
+
+	stats, err := os.Stat(filePath)
 	if err != nil {
 		return UploadResponse{}, err
 	}
 
+	// Check if file size exceeds 100MB
+	if stats.Size() > MAX_SIZE_REGULAR_UPLOAD {
+		return uploadWithTUS(filePath, groupId, name, verbose, stats)
+	}
+
+	// Original upload logic for files under 100MB
+	return regularUpload(filePath, groupId, name, verbose)
+}
+
+type progressReader struct {
+	r   io.Reader
+	bar *progressbar.ProgressBar
+}
+
+func regularUpload(filePath string, groupId string, name string, verbose bool) (UploadResponse, error) {
+	// Your existing upload logic for files under 100MB
+	// (The original implementation of your Upload function)
+
+	jwt, err := findToken()
+	if err != nil {
+		return UploadResponse{}, err
+	}
 	stats, err := os.Stat(filePath)
 	if os.IsNotExist(err) {
 		fmt.Println("File or folder does not exist")
 		return UploadResponse{}, errors.Join(err, errors.New("file or folder does not exist"))
 	}
-
 	files, err := pathsFinder(filePath, stats)
 	if err != nil {
 		return UploadResponse{}, err
 	}
-
 	body := &bytes.Buffer{}
 	contentType, err := createMultipartRequest(filePath, files, body, stats, groupId, name)
 	if err != nil {
@@ -80,11 +108,6 @@ func Upload(filePath string, groupId string, name string, verbose bool) (UploadR
 	fmt.Println(string(formattedJSON))
 
 	return response, nil
-}
-
-type progressReader struct {
-	r   io.Reader
-	bar *progressbar.ProgressBar
 }
 
 func cmpl() {
@@ -141,6 +164,134 @@ func formatSize(bytes int) string {
 	}
 
 	return formattedSize
+}
+
+func uploadWithTUS(filePath string, groupId string, name string, verbose bool, stats os.FileInfo) (UploadResponse, error) {
+	jwt, err := findToken()
+	if err != nil {
+		return UploadResponse{}, err
+	}
+
+	if verbose {
+		fmt.Println("Initializing TUS upload...")
+	}
+
+	// Create the TUS client with config
+	config := &tus.Config{
+		ChunkSize:  CHUNK_SIZE, // 50MB chunks
+		Resume:     true,
+		Header:     http.Header{"Authorization": {fmt.Sprintf("Bearer %s", jwt)}},
+		HttpClient: http.DefaultClient,
+	}
+
+	client, err := tus.NewClient("https://uploads.pinata.cloud/v3/files", config)
+	if err != nil {
+		return UploadResponse{}, fmt.Errorf("failed to create TUS client: %w", err)
+	}
+
+	// Open the file
+	f, err := os.Open(filePath)
+	if err != nil {
+		return UploadResponse{}, fmt.Errorf("failed to open file: %w", err)
+	}
+	defer f.Close()
+
+	// Create metadata
+	metadata := map[string]string{
+		"filename": filepath.Base(filePath),
+	}
+	if groupId != "" {
+		metadata["group_id"] = groupId
+	}
+	if name != "nil" {
+		metadata["filename"] = name
+	}
+
+	// Create the upload
+	upload := tus.NewUpload(f, stats.Size(), metadata, "")
+
+	// Create and configure the uploader
+	uploader, err := client.CreateUpload(upload)
+	if err != nil {
+		return UploadResponse{}, fmt.Errorf("failed to create upload: %w", err)
+	}
+
+	var bar *progressbar.ProgressBar
+	if verbose {
+		fmt.Printf("Starting upload of %s (%s) using TUS protocol\n", stats.Name(), formatSize(int(stats.Size())))
+		bar = progressbar.NewOptions64(
+			stats.Size(),
+			progressbar.OptionEnableColorCodes(true),
+			progressbar.OptionShowBytes(true),
+			progressbar.OptionSetDescription("Uploading..."),
+			progressbar.OptionSetTheme(progressbar.Theme{
+				Saucer:        "█",
+				SaucerPadding: " ",
+				BarStart:      "|",
+				BarEnd:        "|",
+			}),
+			progressbar.OptionOnCompletion(cmpl),
+		)
+	}
+
+	// Create a goroutine to update progress
+	if verbose {
+		go func() {
+			for {
+				offset := uploader.Offset()
+				if offset >= stats.Size() {
+					bar.Finish()
+					return
+				}
+				bar.Set64(offset)
+				time.Sleep(100 * time.Millisecond)
+			}
+		}()
+	}
+
+	// Perform the upload
+	err = uploader.Upload()
+	if err != nil {
+		return UploadResponse{}, fmt.Errorf("failed during upload: %w", err)
+	}
+
+	if verbose {
+		fmt.Println("\nUpload completed!")
+	}
+
+	// Get the upload URL and make a GET request to fetch details
+	uploadURL := uploader.Url()
+	req, err := http.NewRequest("GET", uploadURL, nil)
+	if err != nil {
+		return UploadResponse{}, fmt.Errorf("failed to create response request: %w", err)
+	}
+	req.Header.Set("Authorization", "Bearer "+string(jwt))
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return UploadResponse{}, fmt.Errorf("failed to fetch upload response: %w", err)
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return UploadResponse{}, fmt.Errorf("failed to read response body: %w", err)
+	}
+
+	if verbose {
+		var prettyJSON bytes.Buffer
+		if err := json.Indent(&prettyJSON, body, "", "    "); err == nil {
+			fmt.Println("Upload Response:")
+			fmt.Println(prettyJSON.String())
+		}
+	}
+
+	var response UploadResponse
+	if err := json.Unmarshal(body, &response); err != nil {
+		return UploadResponse{}, fmt.Errorf("failed to parse response: %w", err)
+	}
+
+	return response, nil
 }
 
 func createMultipartRequest(filePath string, files []string, body io.Writer, stats os.FileInfo, groupId string, name string) (string, error) {
