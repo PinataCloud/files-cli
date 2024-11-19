@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/eventials/go-tus"
@@ -18,8 +19,8 @@ import (
 )
 
 const (
-	MAX_SIZE_REGULAR_UPLOAD = 100 * 1024 * 1024 // 100MB in bytes
-	CHUNK_SIZE              = 50 * 1024 * 1024  // 50MB chunk size
+	MAX_SIZE_REGULAR_UPLOAD = 100 * 1024 * 1024 // Uploead threshold
+	CHUNK_SIZE              = 10 * 1024 * 1024  // Chunk size
 )
 
 func Upload(filePath string, groupId string, name string, verbose bool) (UploadResponse, error) {
@@ -29,12 +30,10 @@ func Upload(filePath string, groupId string, name string, verbose bool) (UploadR
 		return UploadResponse{}, err
 	}
 
-	// Check if file size exceeds 100MB
 	if stats.Size() > MAX_SIZE_REGULAR_UPLOAD {
 		return uploadWithTUS(filePath, groupId, name, verbose, stats)
 	}
 
-	// Original upload logic for files under 100MB
 	return regularUpload(filePath, groupId, name, verbose)
 }
 
@@ -44,8 +43,6 @@ type progressReader struct {
 }
 
 func regularUpload(filePath string, groupId string, name string, verbose bool) (UploadResponse, error) {
-	// Your existing upload logic for files under 100MB
-	// (The original implementation of your Upload function)
 
 	jwt, err := findToken()
 	if err != nil {
@@ -172,14 +169,10 @@ func uploadWithTUS(filePath string, groupId string, name string, verbose bool, s
 		return UploadResponse{}, err
 	}
 
-	if verbose {
-		fmt.Println("Initializing TUS upload...")
-	}
-
 	// Create the TUS client with config
 	config := &tus.Config{
 		ChunkSize:  CHUNK_SIZE, // 50MB chunks
-		Resume:     true,
+		Resume:     false,
 		Header:     http.Header{"Authorization": {fmt.Sprintf("Bearer %s", jwt)}},
 		HttpClient: http.DefaultClient,
 	}
@@ -218,7 +211,7 @@ func uploadWithTUS(filePath string, groupId string, name string, verbose bool, s
 
 	var bar *progressbar.ProgressBar
 	if verbose {
-		fmt.Printf("Starting upload of %s (%s) using TUS protocol\n", stats.Name(), formatSize(int(stats.Size())))
+		fmt.Printf("Starting upload of %s (%s)\n", stats.Name(), formatSize(int(stats.Size())))
 		bar = progressbar.NewOptions64(
 			stats.Size(),
 			progressbar.OptionEnableColorCodes(true),
@@ -232,15 +225,11 @@ func uploadWithTUS(filePath string, groupId string, name string, verbose bool, s
 			}),
 			progressbar.OptionOnCompletion(cmpl),
 		)
-	}
 
-	// Create a goroutine to update progress
-	if verbose {
 		go func() {
 			for {
 				offset := uploader.Offset()
 				if offset >= stats.Size() {
-					bar.Finish()
 					return
 				}
 				bar.Set64(offset)
@@ -249,7 +238,6 @@ func uploadWithTUS(filePath string, groupId string, name string, verbose bool, s
 		}()
 	}
 
-	// Perform the upload
 	err = uploader.Upload()
 	if err != nil {
 		return UploadResponse{}, fmt.Errorf("failed during upload: %w", err)
@@ -259,9 +247,12 @@ func uploadWithTUS(filePath string, groupId string, name string, verbose bool, s
 		fmt.Println("\nUpload completed!")
 	}
 
-	// Get the upload URL and make a GET request to fetch details
 	uploadURL := uploader.Url()
-	req, err := http.NewRequest("GET", uploadURL, nil)
+	urlParts := strings.Split(uploadURL, "/")
+	fileId := urlParts[len(urlParts)-2]
+
+	apiURL := fmt.Sprintf("https://api.pinata.cloud/v3/files/%s", fileId)
+	req, err := http.NewRequest("GET", apiURL, nil)
 	if err != nil {
 		return UploadResponse{}, fmt.Errorf("failed to create response request: %w", err)
 	}
@@ -278,18 +269,17 @@ func uploadWithTUS(filePath string, groupId string, name string, verbose bool, s
 		return UploadResponse{}, fmt.Errorf("failed to read response body: %w", err)
 	}
 
-	if verbose {
-		var prettyJSON bytes.Buffer
-		if err := json.Indent(&prettyJSON, body, "", "    "); err == nil {
-			fmt.Println("Upload Response:")
-			fmt.Println(prettyJSON.String())
-		}
-	}
-
 	var response UploadResponse
-	if err := json.Unmarshal(body, &response); err != nil {
+	err = json.Unmarshal(body, &response)
+	if err != nil {
 		return UploadResponse{}, fmt.Errorf("failed to parse response: %w", err)
 	}
+
+	formattedJSON, err := json.MarshalIndent(response.Data, "", "    ")
+	if err != nil {
+		return UploadResponse{}, fmt.Errorf("failed to format response: %w", err)
+	}
+	fmt.Println(string(formattedJSON))
 
 	return response, nil
 }

@@ -8,7 +8,6 @@ type UploadResponse struct {
 		Size          int    `json:"size"`
 		NumberOfFiles int    `json:"number_of_files"`
 		MimeType      string `json:"mime_type"`
-		UserId        string `json:"user_id"`
 		CreatedAt     string `json:"created_at"`
 		GroupId       string `json:"group_id,omitempty"`
 		IsDuplicate   bool   `json:"is_duplicate,omitempty"`
